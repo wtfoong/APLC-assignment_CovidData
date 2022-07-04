@@ -3,32 +3,83 @@ package aplcassignment;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
-import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.lang.String;
-import java.util.function.Function;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author rainy
  */
 public class CovidData {
-    public static List readCSVFile(String filePath) throws IOException, CsvException{
+    public static List<Country> readCSVFile(String filePath) throws IOException, CsvException{
         FileInputStream file = new FileInputStream(filePath);
+        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yy");
         InputStreamReader inputStream = new InputStreamReader(file, StandardCharsets.UTF_8);
         CSVReader reader = new CSVReader(inputStream);
 
         List<String[]> data = reader.readAll();
+        List<String>headers= new ArrayList<>(getheaders(data));
+        List<Country> countryList = new ArrayList<>();
         
-        return data;
+        headers.subList(0, 4).clear();
+        data.remove(0);
+        
+        
+        for (String[] d : data) {
+            
+            Country c = new Country();
+            try {
+                c.setStateName(d[0]);
+                c.setCountryName(d[1]);
+                c.setLatitude(Float.valueOf(d[2]));
+                c.setLongitude(Float.valueOf(d[3]));
+            } catch (NumberFormatException e) {
+                
+            }
+            
+            List<String>filtered = new ArrayList<>(Arrays.asList(d));
+            filtered.subList(0, 4).clear();
+            
+            for (int i = 0; i < filtered.size(); i++) {
+                try {
+                    int rowData = Integer.valueOf(filtered.get(i));
+                    CountryData cd = new CountryData(format.parse(headers.get(i)), rowData);
+                    if (i > 0) {
+                            int previousRowData = Integer.valueOf(filtered.get(i-1));
+                            int newRowData = rowData - previousRowData;
+                            if (previousRowData > 0) {
+                                // The data reduce in the next day (Due to wrong dataset)
+                                if (newRowData < 0) {
+                                    // Remain the wrong data to avoid wrong counting in sum.
+                                    cd.setNumber(newRowData);
+                                } else {
+                                    cd.setNumber(newRowData);
+                                }
+                            }
+                    }
+                    c.getDataset().add(cd);
+                } catch (ParseException ex) {
+                    java.util.logging.Logger.getLogger(CovidData.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+                }
+            }
+           
+            countryList.add(c);
+        } 
+        return countryList;
    }
     
     
@@ -37,20 +88,21 @@ public class CovidData {
         return Arrays.asList(data.get(0));
     }
     
-    public static List<String[]> provideC19GlobalConfirmedCaseData() throws IOException, CsvException{
+    public static List<Country> provideC19GlobalConfirmedCaseData() throws IOException, CsvException{
         String filepath = "Coviddata/time_series_covid19_confirmed_global.csv";
         return readCSVFile(filepath);
     }
     
-    public static List<String[]> provideC19GlobalDeathData() throws IOException, CsvException{
+    public static List<Country> provideC19GlobalDeathData() throws IOException, CsvException{
         String filepath = "Coviddata/time_series_covid19_deaths_global.csv";
         return readCSVFile(filepath);
     }
     
-    public static List<String[]> provideC19GlobalRecoveredData() throws IOException, CsvException{
+    public static List<Country> provideC19GlobalRecoveredData() throws IOException, CsvException{
         String filepath = "Coviddata/time_series_covid19_recovered_global.csv";
         return readCSVFile(filepath);
     }
     
+   
     
 }

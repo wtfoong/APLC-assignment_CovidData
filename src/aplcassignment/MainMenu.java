@@ -4,6 +4,14 @@
  */
 package aplcassignment;
 
+import static aplcassignment.Task1.q1AllCountryWithConfirm;
+import com.opencsv.exceptions.CsvException;
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author rainy
@@ -16,6 +24,7 @@ public class MainMenu extends javax.swing.JFrame {
     public MainMenu() {
         initComponents();
     }
+    DefaultTableModel allCountrySumCaseModel;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -27,13 +36,13 @@ public class MainMenu extends javax.swing.JFrame {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        statisticTable = new javax.swing.JTable();
+        tblstatistic = new javax.swing.JTable();
         btnProlog = new javax.swing.JButton();
         cmbTask1 = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        statisticTable.setModel(new javax.swing.table.DefaultTableModel(
+        tblstatistic.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {},
                 {},
@@ -44,11 +53,17 @@ public class MainMenu extends javax.swing.JFrame {
 
             }
         ));
-        jScrollPane1.setViewportView(statisticTable);
+        tblstatistic.getTableHeader().setReorderingAllowed(false);
+        jScrollPane1.setViewportView(tblstatistic);
 
         btnProlog.setText("Prolog");
 
         cmbTask1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cmbTask1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbTask1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -80,6 +95,61 @@ public class MainMenu extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void cmbTask1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbTask1ActionPerformed
+        switch (cmbTask1.getSelectedIndex()) {
+            case 0:
+                setCountrySumCaseTable();
+                DefaultTableModel resetTable = (DefaultTableModel) tblstatistic.getModel();
+                resetTable.setRowCount(0);   
+                allCountrySumCaseModel = (DefaultTableModel) tblstatistic.getModel();
+                List ans;
+            try {
+                ans = Task1.q1AllCountryWithConfirm();
+                if (ans!=null) {
+                    int i=0;
+                    for(String[] test :q1AllCountryWithConfirm() ){
+                         if (ans == null){
+
+                        } else{
+                            
+                            allCountrySumCaseModel.insertRow(allCountrySumCaseModel.getRowCount(), new Object[] {
+                                 i+1,test[0],test[1]
+                            });
+                        }
+                    }
+                    
+                }
+            } catch (IOException | CsvException ex) {
+                Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+            }
+               
+
+                
+        }
+    }//GEN-LAST:event_cmbTask1ActionPerformed
+
+    private void setCountrySumCaseTable(){
+         tblstatistic.setModel(new javax.swing.table.DefaultTableModel(
+                    new Object [][] {
+
+                    },
+                    new String [] {
+                     "ID", "Country", "Total Confirmed Cases"
+                    }
+                ) {
+                    boolean[] canEdit = new boolean [] {
+                        false, false, false
+                    };
+
+                    @Override
+                    public boolean isCellEditable(int rowIndex, int columnIndex) {
+                        return canEdit [columnIndex];
+                    }
+                });
+              
+               
+                ;
+    }
     /**
      * @param args the command line arguments
      */
@@ -119,6 +189,6 @@ public class MainMenu extends javax.swing.JFrame {
     private javax.swing.JButton btnProlog;
     private javax.swing.JComboBox<String> cmbTask1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable statisticTable;
+    private javax.swing.JTable tblstatistic;
     // End of variables declaration//GEN-END:variables
 }
