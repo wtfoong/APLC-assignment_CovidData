@@ -4,28 +4,35 @@
  */
 package aplcassignment;
 
-import static aplcassignment.Task1.q1AllCountryWithConfirm;
 import com.opencsv.exceptions.CsvException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import static aplcassignment.Task1.AllCountryConfirmCasesTableData;
 
 /**
  *
  * @author rainy
  */
 public class MainMenu extends javax.swing.JFrame {
-
+    DefaultTableModel allCountrySumCaseModel;
+    
     /**
      * Creates new form MainMenu
      */
     public MainMenu() {
         initComponents();
+        cmbTask1ActionPerformed(null);
     }
-    DefaultTableModel allCountrySumCaseModel;
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -53,6 +60,7 @@ public class MainMenu extends javax.swing.JFrame {
 
             }
         ));
+        tblstatistic.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_NEXT_COLUMN);
         tblstatistic.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(tblstatistic);
 
@@ -75,8 +83,8 @@ public class MainMenu extends javax.swing.JFrame {
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(28, 28, 28)
-                .addComponent(cmbTask1, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 774, Short.MAX_VALUE)
+                .addComponent(cmbTask1, javax.swing.GroupLayout.PREFERRED_SIZE, 425, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 656, Short.MAX_VALUE)
                 .addComponent(btnProlog, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(39, 39, 39))
         );
@@ -96,60 +104,120 @@ public class MainMenu extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cmbTask1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbTask1ActionPerformed
-        switch (cmbTask1.getSelectedIndex()) {
-            case 0 -> {
-                setCountrySumCaseTable();
-            }
-               
-
+        try {
+            List<Country> confirmCaseList = CovidData.provideC19GlobalConfirmedCaseData();
+            switch (cmbTask1.getSelectedIndex()) {
+                default -> cmbTask1.setSelectedIndex(0);
+                case 0 -> {
+                    setCountrySumCaseTable(confirmCaseList);
+                }
+                case 1 -> {
+                    DateTimeFormatter weekNYearDateFormat = DateTimeFormatter.ofPattern("ww,Y",Locale.getDefault());
+                    setCountryWeeklyCaseTable(confirmCaseList,weekNYearDateFormat);
+                }
+                case 2 -> {
+                    DateTimeFormatter weekNYearDateFormat = DateTimeFormatter.ofPattern("MMMM,Y",Locale.UK);
+                    setCountryMonthlyCaseTable(confirmCaseList,weekNYearDateFormat);
+                }
                 
+                
+                
+            }
+        } catch (IOException | CsvException ex) {
+            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
     }//GEN-LAST:event_cmbTask1ActionPerformed
 
-    private void setCountrySumCaseTable(){
-         tblstatistic.setModel(new javax.swing.table.DefaultTableModel(
-                    new Object [][] {
+    private void setCountrySumCaseTable(List<Country> confirmCaseList){         
+        tblstatistic.setModel(new javax.swing.table.DefaultTableModel(
+                new Object [][] {
 
-                    },
-                    new String [] {
-                     "ID", "Country", "Total Confirmed Cases"
-                    }
-                ) {
-                    boolean[] canEdit = new boolean [] {
-                        false, false, false
-                    };
-
-                    @Override
-                    public boolean isCellEditable(int rowIndex, int columnIndex) {
-                        return canEdit [columnIndex];
-                    }
-                });
-         
-                DefaultTableModel resetTable = (DefaultTableModel) tblstatistic.getModel();
-                resetTable.setRowCount(0);   
-                allCountrySumCaseModel = (DefaultTableModel) tblstatistic.getModel();
-                List ans;
-                try {
-                    ans = Task1.q1AllCountryWithConfirm();
-                    if (ans!=null) {
-                        int i=0;
-                        for(String[] test :q1AllCountryWithConfirm() ){
-                            if (ans == null){
-                                
-                            } else{
-                                
-                                allCountrySumCaseModel.insertRow(allCountrySumCaseModel.getRowCount(), new Object[] {
-                                    i+=1,test[0],test[1]
-                                });
-                            }
-                        }
-                        
-                    }
-                } catch (IOException | CsvException ex) {                    
-                    Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+                },
+                new String [] {
+                    "ID", "Country", "Total Confirmed Cases"
                 }
-              
-               
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+
+        DefaultTableModel resetTable = (DefaultTableModel) tblstatistic.getModel();
+        resetTable.setRowCount(0);
+        allCountrySumCaseModel = (DefaultTableModel) tblstatistic.getModel();
+        List ans;
+        try {
+            ans = Task1.AllCountryConfirmCasesTableData(confirmCaseList);
+            if (ans!=null) {
+                int i=0;
+                for(String[] test :AllCountryConfirmCasesTableData(confirmCaseList) ){
+                    if (ans == null){
+
+                    } else{
+
+                        allCountrySumCaseModel.insertRow(allCountrySumCaseModel.getRowCount(), new Object[] {
+                            i+=1,test[0],test[1]
+                        });
+                    }
+                }
+
+            }
+        } catch (IOException | CsvException ex) {
+            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+        }   
+        tblstatistic.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+    }
+    
+    private void setCountryWeeklyCaseTable(List<Country> confirmCaseList,DateTimeFormatter dateFormat){         
+        String[] table1Columns = Task1.getAllWeeksStartNEndDateHeader();
+        String[][] table1Data = Task1.weeklyNMonthlyCasesForCountriesTabledata(confirmCaseList, dateFormat);
+        DefaultTableModel model = new DefaultTableModel(table1Data, table1Columns) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+        tblstatistic.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        tblstatistic.setModel(model);
+        DefaultTableCellRenderer centerrenderer = new DefaultTableCellRenderer();
+        centerrenderer.setHorizontalAlignment(JLabel.CENTER);
+        tblstatistic.getColumnModel().getColumn(0).setPreferredWidth(50);
+        tblstatistic.getColumnModel().getColumn(1).setPreferredWidth(200);
+        
+        for (int i = 2; i < table1Columns.length; i++) {
+             tblstatistic.getColumnModel().getColumn(i).setPreferredWidth(165);
+             tblstatistic.getColumnModel().getColumn(i).setCellRenderer(centerrenderer);
+        }
+       
+    }
+    
+    private void setCountryMonthlyCaseTable(List<Country> confirmCaseList,DateTimeFormatter dateFormat){         
+        String[] table1Columns = Task1.getAllMonthHeader();
+        String[][] table1Data = Task1.weeklyNMonthlyCasesForCountriesTabledata(confirmCaseList, dateFormat);
+        DefaultTableModel model = new DefaultTableModel(table1Data, table1Columns) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+        tblstatistic.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        tblstatistic.setModel(model);
+        DefaultTableCellRenderer centerrenderer = new DefaultTableCellRenderer();
+        centerrenderer.setHorizontalAlignment(JLabel.CENTER);
+        tblstatistic.getColumnModel().getColumn(0).setPreferredWidth(50);
+        tblstatistic.getColumnModel().getColumn(1).setPreferredWidth(200);
+        
+        for (int i = 2; i < table1Columns.length; i++) {
+             tblstatistic.getColumnModel().getColumn(i).setPreferredWidth(100);
+             tblstatistic.getColumnModel().getColumn(i).setCellRenderer(centerrenderer);
+        }
+       
     }
     /**
      * @param args the command line arguments

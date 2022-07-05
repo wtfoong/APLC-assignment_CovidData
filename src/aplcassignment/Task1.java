@@ -6,6 +6,7 @@ package aplcassignment;
 
 import com.opencsv.exceptions.CsvException;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,9 +18,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.time.*;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.WeekFields;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Locale;
+
 
 /**
  *
@@ -30,11 +35,11 @@ public class Task1 {
     
     
     //1. Display the total confirmed Covid-19 cases according to country
-    public static List<String[]> q1AllCountryWithConfirm() throws IOException, CsvException{
+    public static List<String[]> AllCountryConfirmCasesTableData(List<Country> cList) throws IOException, CsvException{
         String[] temp;
         List ans = new ArrayList();
-        for (Country c : getUniqueCountries()) {
-            String sum = String.valueOf(sumofCases(getRecordsWithSameCountryName(c.getCountryName()),c.getCountryName()));
+        for (Country c : getUniqueCountries(cList)) {
+            String sum = String.valueOf(sumofCases(getRecordsWithSameCountryName(cList,c.getCountryName()),c.getCountryName()));
             temp=new String[2];
             temp[0]=c.getCountryName();
             temp[1]=sum;
@@ -55,15 +60,15 @@ public class Task1 {
         return t -> seen.add(keyExtractor.apply(t));
     }
     
-    public static List<Country> getUniqueCountries() throws IOException, CsvException{
-        return CovidData.provideC19GlobalConfirmedCaseData().stream()
+    public static List<Country> getUniqueCountries(List<Country> cList) throws IOException, CsvException{
+        return cList.stream()
                 .filter(distinctByKey(Country::getCountryName))
                 .collect(Collectors.toList());
     }
     
-    public static List<Country> getRecordsWithSameCountryName( String countryName) throws IOException, CsvException{
+    public static List<Country> getRecordsWithSameCountryName(List<Country> cList, String countryName) throws IOException, CsvException{
         
-        return CovidData.provideC19GlobalConfirmedCaseData().stream().filter(t->sameCountryName.test(t.getCountryName(), countryName))
+        return cList.stream().filter(t->sameCountryName.test(t.getCountryName(), countryName))
                 .collect(Collectors.toList());
     }
     
@@ -76,29 +81,25 @@ public class Task1 {
     
     
     //2. Compute the sum of confirmed cases by week and month for each country
-    //Weekly confirmed cases
-    public static String[][] weeklyCasesForCountries(){
+    //Weekly confirmed cases and monthly confirm case 
+    public static String[][] weeklyNMonthlyCasesForCountriesTabledata(List<Country> cList,DateTimeFormatter dateFormat){
         try {
-            List<Country> countries = getUniqueCountries();
-            List<String> weeks = getAllWeeks();
+            List<Country> countries = getUniqueCountries(cList);
+            List<String> weeks = getAllWeeksOrMonth(dateFormat);
             String[][] data = new String[countries.size()][weeks.size()+2];
             int i =0;
             
             for (Country c : countries) {
                 data[i][0]=String.valueOf(i+1)+".";
                 data[i][1]= c.getCountryName();
-               //System.out.println( data[i][1]);
                 int w = 2;
                 
                 for (String week : weeks) {
-                    int weeklycases = getWeeklyConfirmedCasesbyCountry( c.getCountryName(), week);
+                    int weeklycases = getWeeklyOrMonthlyConfirmedCasesbyCountry(cList, c.getCountryName(), week,dateFormat);
                     data[i][w]=String.valueOf(weeklycases);
                     w+=1;
-                     //System.out.println(data[i][w]);
                 }
-                System.out.println(Arrays.toString(data[i]));
                 i+=1;
-               
             }
             
             return data;
@@ -106,39 +107,31 @@ public class Task1 {
         } catch (IOException | CsvException ex) {
             Logger.getLogger(Task1.class.getName()).log(Level.SEVERE, null, ex);
         }
-         
          return null;
     }
     
-    
-    //Monthly confirmed cases
-    
-    
-    
-    
-    public static List<String> getAllWeeks(){
+    public static List<String> getAllWeeksOrMonth(DateTimeFormatter  dateFormat){
         try {
-            SimpleDateFormat weekNYear = new SimpleDateFormat("ww,Y");
             return CovidData.provideC19GlobalConfirmedCaseData().stream()
                     .map(c->c.getDataset())
                     .flatMap(d->d.stream())
-                    .map(week->weekNYear.format(week.getDate()))
+                    .sorted(Comparator.comparing(d->d.getDate()))
+                    .map(week->dateFormat.format(week.getDate()))
+                    
                     .filter(distinctByKey(week->week))
                     .collect(Collectors.toList());
-        } catch (IOException | CsvException ex) {
+        } catch (IOException | CsvException ex) { 
             Logger.getLogger(Task1.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
     
-    public static int getWeeklyConfirmedCasesbyCountry(String countryName, String weekYear){ 
+    public static int getWeeklyOrMonthlyConfirmedCasesbyCountry(List<Country> cList,String countryName, String weekOrMonthYear, DateTimeFormatter dateFormat){ 
         try {
-            SimpleDateFormat weekNYear = new SimpleDateFormat("ww,Y");
-            return getRecordsWithSameCountryName(countryName).stream()
+            return getRecordsWithSameCountryName(cList,countryName).stream()
                     .map(c->c.getDataset())
-                    .flatMap(d->d.stream())
-                    
-                    .filter(d->weekNYear.format(d.getDate()).equals(weekYear))
+                    .flatMap(d->d.stream())                    
+                    .filter(d->dateFormat.format(d.getDate()).equals(weekOrMonthYear))
                     .mapToInt(date->date.getData())
                     .sum();
         } catch (IOException | CsvException ex) {
@@ -147,66 +140,65 @@ public class Task1 {
         return 0;
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
+     //For header of the table     
     public static String[] getAllWeeksStartNEndDateHeader() {
-        //For header of the table
-        List<String> header = new ArrayList();
-        header.add("No");
-        header.add("Country");
+        DateTimeFormatter formatter =DateTimeFormatter.ofPattern("dd MMM yyyy");
+        DateTimeFormatter weekNYearDateFormat = DateTimeFormatter.ofPattern("ww,Y",Locale.UK);
+        String[] header = new String[getAllWeeksOrMonth(weekNYearDateFormat).size()+2];
+        header[0]="No";
+        header[1]= "Country";
+        int i=2;
         
-        for (String allWeek : getAllWeeks()) {
-            DateTime startDate = new DateTime()
-                .withWeekyear(Integer.valueOf(allWeek.split(",")[1]))
-                .withWeekOfWeekyear(Integer.valueOf(allWeek.split(",")[0]))
-                .withDayOfWeek(1);
-           
-            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd-MM-yy");
-            
-            DateTime endDate = new DateTime()
-                .withWeekyear(Integer.valueOf(allWeek.split(",")[1]))
-                .withWeekOfWeekyear(Integer.valueOf(allWeek.split(",")[0]))
-                .withDayOfWeek(7);
-           
-            String temp = dateTimeFormatter.print(startDate)+" - "+dateTimeFormatter.print(endDate);
-            header.add(temp);
+        for (String allWeek : getAllWeeksOrMonth(weekNYearDateFormat)) {
+            LocalDate startDate = LocalDate.now()
+                    .with(WeekFields.ISO.weekBasedYear(), Integer.valueOf(allWeek.split(",")[1])) // year
+                    .with(WeekFields.ISO.weekOfWeekBasedYear(), Integer.valueOf(allWeek.split(",")[0])) // week of year
+                    .with(WeekFields.ISO.dayOfWeek(), DayOfWeek.MONDAY.getValue()); // day of week
+            LocalDate endDate = startDate.plusDays(6);
+            String temp = formatter.format(startDate)+" - "+formatter.format(endDate);
+            header[i] = temp;
+            i+=1;
         }
         
-        return (String[]) header.toArray();
+        return header;
     }
     
+     public static String[] getAllMonthHeader() {
+        DateTimeFormatter monthNYearDateFormat = DateTimeFormatter.ofPattern("MMMM,Y",Locale.UK);
+        String[] header = new String[getAllWeeksOrMonth(monthNYearDateFormat).size()+2];
+        header[0]="No";
+        header[1]= "Country";
+        int i=2;
+        
+        for (String allWeek : getAllWeeksOrMonth(monthNYearDateFormat)) {
+            header[i] = allWeek;
+            i+=1;
+        }
+        
+        return header;
+        
+     }
     
     
     
     
     public static void main(String[] args) {
-//        try {
-//            System.out.println(getAllWeeks());
-//            System.out.println(getWeeklyConfirmedCasesbyCountry("China","04,2020"));
-//            int i =0;
-//            
-//            for (Country c : getUniqueCountries()) {
-//                
-//                System.out.println(c.getCountryName());
-//                int w = 2;
-//                i+=1;
-//                for (String week : getAllWeeks()) {
-//                    int weeklycases = getWeeklyConfirmedCasesbyCountry( c.getCountryName(), week);
-//                    System.out.println(weeklycases);
-//                }
-//            }
-//        } catch (IOException | CsvException ex) {
-//            Logger.getLogger(Task1.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-
-        System.out.println(weeklyCasesForCountries());
+        try {
+            SimpleDateFormat monthNYear = new SimpleDateFormat("MM Y");
+            DateTimeFormatter weekNYearDateFormat = DateTimeFormatter.ofPattern("ww,Y",Locale.UK);
+            DateTimeFormatter monthNYearDateFormat = DateTimeFormatter.ofPattern("MMMM,Y",Locale.UK);
+            DateTimeFormatter format =DateTimeFormatter.ofPattern("M/d/yy",Locale.UK);
+            LocalDate date = LocalDate.parse("12/28/20",format);
+            List<Country> clist = CovidData.provideC19GlobalConfirmedCaseData();
+            System.out.println(Arrays.toString(getAllMonthHeader()));
+            WeekFields weekFields = WeekFields.of(Locale.ENGLISH);
+            
+            System.out.println(weekNYearDateFormat.format(date));
+            System.out.println(getAllWeeksOrMonth(monthNYearDateFormat)); 
+            System.out.println(getWeeklyOrMonthlyConfirmedCasesbyCountry(clist,"Afghanistan","February,2020",monthNYearDateFormat)); 
+        } catch (IOException | CsvException  ex) {
+            Logger.getLogger(Task1.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     

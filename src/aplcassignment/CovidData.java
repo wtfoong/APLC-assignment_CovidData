@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,7 +29,7 @@ import java.util.logging.Logger;
 public class CovidData {
     public static List<Country> readCSVFile(String filePath) throws IOException, CsvException{
         FileInputStream file = new FileInputStream(filePath);
-        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yy");
+        DateTimeFormatter format =DateTimeFormatter.ofPattern("M/d/[yyyy][yy]");
         InputStreamReader inputStream = new InputStreamReader(file, StandardCharsets.UTF_8);
         CSVReader reader = new CSVReader(inputStream);
 
@@ -55,26 +57,22 @@ public class CovidData {
             filtered.subList(0, 4).clear();
             
             for (int i = 0; i < filtered.size(); i++) {
-                try {
-                    int rowData = Integer.valueOf(filtered.get(i));
-                    CountryData cd = new CountryData(format.parse(headers.get(i)), rowData);
-                    if (i > 0) {
-                            int previousRowData = Integer.valueOf(filtered.get(i-1));
-                            int newRowData = rowData - previousRowData;
-                            if (previousRowData > 0) {
-                                // The data reduce in the next day (Due to wrong dataset)
-                                if (newRowData < 0) {
-                                    // Remain the wrong data to avoid wrong counting in sum.
-                                    cd.setNumber(newRowData);
-                                } else {
-                                    cd.setNumber(newRowData);
-                                }
-                            }
+                int rowData = Integer.valueOf(filtered.get(i));
+                CountryData cd = new CountryData(LocalDate.parse(headers.get(i),format), rowData);
+                if (i > 0) {
+                    int previousRowData = Integer.valueOf(filtered.get(i-1));
+                    int newRowData = rowData - previousRowData;
+                    if (previousRowData > 0) {
+                        // The data reduce in the next day (Due to wrong dataset)
+                        if (newRowData < 0) {
+                            // Remain the wrong data to avoid wrong counting in sum.
+                            cd.setNumber(newRowData);
+                        } else {
+                            cd.setNumber(newRowData);
+                        }
                     }
-                    c.getDataset().add(cd);
-                } catch (ParseException ex) {
-                    java.util.logging.Logger.getLogger(CovidData.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
                 }
+                c.getDataset().add(cd);
             }
            
             countryList.add(c);
@@ -84,7 +82,7 @@ public class CovidData {
     
     
    
-    public static List<String> getheaders(List<String[]> data) throws IOException, CsvException{
+    public static List<String> getheaders(List<String[]> data) {
         return Arrays.asList(data.get(0));
     }
     
@@ -104,5 +102,10 @@ public class CovidData {
     }
     
    
+//    public static void main(String[] args) {
+//        String date = "2/22/20";
+//        DateTimeFormatter format =DateTimeFormatter.ofPattern("M/d/yy");
+//        LocalDate lt=LocalDate.parse(date,format);
+//    }
     
 }

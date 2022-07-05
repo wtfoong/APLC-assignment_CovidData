@@ -1,9 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package aplcassignment;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 /**
@@ -11,19 +9,19 @@ import java.util.Date;
  * @author rainy
  */
 public class CountryData {
-    private Date date;
+    private LocalDate date;
     private int number;
 
-    public CountryData(Date date, int number) {
+    public CountryData(LocalDate date, int number) {
         this.date = date;
         this.number = number;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
