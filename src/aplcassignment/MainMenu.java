@@ -116,7 +116,7 @@ public class MainMenu extends javax.swing.JFrame {
                     setCountryWeeklyCaseTable(confirmCaseList,weekNYearDateFormat);
                 }
                 case 2 -> {
-                    DateTimeFormatter weekNYearDateFormat = DateTimeFormatter.ofPattern("MMMM,Y",Locale.UK);
+                    DateTimeFormatter weekNYearDateFormat = DateTimeFormatter.ofPattern("MMMM,Y",Locale.getDefault());
                     setCountryMonthlyCaseTable(confirmCaseList,weekNYearDateFormat);
                 }
                 
