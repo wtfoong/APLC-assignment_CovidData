@@ -84,10 +84,10 @@
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="4">
-            <StringItem index="0" value="Item 1"/>
-            <StringItem index="1" value="Item 2"/>
-            <StringItem index="2" value="Item 3"/>
-            <StringItem index="3" value="Item 4"/>
+            <StringItem index="0" value="1. Total confirmed Covid-19 cases by country"/>
+            <StringItem index="1" value="2.1. Confirmed Covid-19 cases by week for each country"/>
+            <StringItem index="2" value="2.2. Confirmed Covid-19 cases by month for each country"/>
+            <StringItem index="3" value="3. Highes/dowest death and recovered for each country"/>
           </StringArray>
         </Property>
       </Properties>

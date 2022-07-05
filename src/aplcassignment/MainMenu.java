@@ -58,7 +58,7 @@ public class MainMenu extends javax.swing.JFrame {
 
         btnProlog.setText("Prolog");
 
-        cmbTask1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cmbTask1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1. Total confirmed Covid-19 cases by country", "2.1. Confirmed Covid-19 cases by week for each country", "2.2. Confirmed Covid-19 cases by month for each country", "3. Highes/dowest death and recovered for each country" }));
         cmbTask1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cmbTask1ActionPerformed(evt);
@@ -97,30 +97,8 @@ public class MainMenu extends javax.swing.JFrame {
 
     private void cmbTask1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbTask1ActionPerformed
         switch (cmbTask1.getSelectedIndex()) {
-            case 0:
+            case 0 -> {
                 setCountrySumCaseTable();
-                DefaultTableModel resetTable = (DefaultTableModel) tblstatistic.getModel();
-                resetTable.setRowCount(0);   
-                allCountrySumCaseModel = (DefaultTableModel) tblstatistic.getModel();
-                List ans;
-            try {
-                ans = Task1.q1AllCountryWithConfirm();
-                if (ans!=null) {
-                    int i=0;
-                    for(String[] test :q1AllCountryWithConfirm() ){
-                         if (ans == null){
-
-                        } else{
-                            
-                            allCountrySumCaseModel.insertRow(allCountrySumCaseModel.getRowCount(), new Object[] {
-                                 i+1,test[0],test[1]
-                            });
-                        }
-                    }
-                    
-                }
-            } catch (IOException | CsvException ex) {
-                Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
             }
                
 
@@ -146,9 +124,32 @@ public class MainMenu extends javax.swing.JFrame {
                         return canEdit [columnIndex];
                     }
                 });
+         
+                DefaultTableModel resetTable = (DefaultTableModel) tblstatistic.getModel();
+                resetTable.setRowCount(0);   
+                allCountrySumCaseModel = (DefaultTableModel) tblstatistic.getModel();
+                List ans;
+                try {
+                    ans = Task1.q1AllCountryWithConfirm();
+                    if (ans!=null) {
+                        int i=0;
+                        for(String[] test :q1AllCountryWithConfirm() ){
+                            if (ans == null){
+                                
+                            } else{
+                                
+                                allCountrySumCaseModel.insertRow(allCountrySumCaseModel.getRowCount(), new Object[] {
+                                    i+=1,test[0],test[1]
+                                });
+                            }
+                        }
+                        
+                    }
+                } catch (IOException | CsvException ex) {                    
+                    Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+                }
               
                
-                ;
     }
     /**
      * @param args the command line arguments
