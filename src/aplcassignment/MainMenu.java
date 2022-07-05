@@ -7,16 +7,13 @@ package aplcassignment;
 import com.opencsv.exceptions.CsvException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import static aplcassignment.Task1.AllCountryConfirmCasesTableData;
 
 /**
  *
@@ -24,6 +21,9 @@ import static aplcassignment.Task1.AllCountryConfirmCasesTableData;
  */
 public class MainMenu extends javax.swing.JFrame {
     DefaultTableModel allCountrySumCaseModel;
+    final SimpleDateFormat weekNYearFormat = new SimpleDateFormat("ww,Y");
+    final SimpleDateFormat displayWeekFormat = new SimpleDateFormat("dd-MMM-yyyy");
+    final SimpleDateFormat monthNYearFormat = new SimpleDateFormat("MMM-yyyy");
     
     /**
      * Creates new form MainMenu
@@ -112,12 +112,12 @@ public class MainMenu extends javax.swing.JFrame {
                     setCountrySumCaseTable(confirmCaseList);
                 }
                 case 1 -> {
-                    DateTimeFormatter weekNYearDateFormat = DateTimeFormatter.ofPattern("ww,Y",Locale.getDefault());
-                    setCountryWeeklyCaseTable(confirmCaseList,weekNYearDateFormat);
+                   
+                    setCountryWeeklyCaseTable(confirmCaseList,weekNYearFormat);
                 }
                 case 2 -> {
-                    DateTimeFormatter weekNYearDateFormat = DateTimeFormatter.ofPattern("MMMM,Y",Locale.getDefault());
-                    setCountryMonthlyCaseTable(confirmCaseList,weekNYearDateFormat);
+                    
+                    setCountryMonthlyCaseTable(confirmCaseList,monthNYearFormat);
                 }
                 
                 
@@ -153,10 +153,10 @@ public class MainMenu extends javax.swing.JFrame {
         allCountrySumCaseModel = (DefaultTableModel) tblstatistic.getModel();
         List ans;
         try {
-            ans = Task1.AllCountryConfirmCasesTableData(confirmCaseList);
+            ans = tableData.AllCountryConfirmCasesTableData(confirmCaseList);
             if (ans!=null) {
                 int i=0;
-                for(String[] test :AllCountryConfirmCasesTableData(confirmCaseList) ){
+                for(String[] test :tableData.AllCountryConfirmCasesTableData(confirmCaseList) ){
                     if (ans == null){
 
                     } else{
@@ -174,9 +174,9 @@ public class MainMenu extends javax.swing.JFrame {
         tblstatistic.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
     }
     
-    private void setCountryWeeklyCaseTable(List<Country> confirmCaseList,DateTimeFormatter dateFormat){         
-        String[] table1Columns = Task1.getAllWeeksStartNEndDateHeader();
-        String[][] table1Data = Task1.weeklyNMonthlyCasesForCountriesTabledata(confirmCaseList, dateFormat);
+    private void setCountryWeeklyCaseTable(List<Country> confirmCaseList,SimpleDateFormat dateFormat){         
+        String[] table1Columns = tableData.getAllWeeksStartNEndDateHeader(confirmCaseList,weekNYearFormat);
+        String[][] table1Data = tableData.weeklyNMonthlyCasesForCountriesTabledata(confirmCaseList, dateFormat);
         DefaultTableModel model = new DefaultTableModel(table1Data, table1Columns) {
                     @Override
                     public boolean isCellEditable(int row, int column) {
@@ -197,9 +197,9 @@ public class MainMenu extends javax.swing.JFrame {
        
     }
     
-    private void setCountryMonthlyCaseTable(List<Country> confirmCaseList,DateTimeFormatter dateFormat){         
-        String[] table1Columns = Task1.getAllMonthHeader();
-        String[][] table1Data = Task1.weeklyNMonthlyCasesForCountriesTabledata(confirmCaseList, dateFormat);
+    private void setCountryMonthlyCaseTable(List<Country> confirmCaseList,SimpleDateFormat dateFormat){         
+        String[] table1Columns = tableData.getAllMonthHeader(confirmCaseList,monthNYearFormat);
+        String[][] table1Data = tableData.weeklyNMonthlyCasesForCountriesTabledata(confirmCaseList, dateFormat);
         DefaultTableModel model = new DefaultTableModel(table1Data, table1Columns) {
                     @Override
                     public boolean isCellEditable(int row, int column) {

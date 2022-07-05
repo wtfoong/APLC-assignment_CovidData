@@ -34,21 +34,8 @@ public class Task1 {
     private static final BiPredicate<String, String> sameCountryName = (inputName, ComparedName) -> inputName.equalsIgnoreCase(ComparedName);
     
     
-    //1. Display the total confirmed Covid-19 cases according to country
-    public static List<String[]> AllCountryConfirmCasesTableData(List<Country> cList) throws IOException, CsvException{
-        String[] temp;
-        List ans = new ArrayList();
-        for (Country c : getUniqueCountries(cList)) {
-            String sum = String.valueOf(sumofCases(getRecordsWithSameCountryName(cList,c.getCountryName()),c.getCountryName()));
-            temp=new String[2];
-            temp[0]=c.getCountryName();
-            temp[1]=sum;
-            ans.add(temp);
-        }
-        return ans;
-    }
     
-    
+   
     /**
      * Source: https://stackoverflow.com/a/27872852
      * @param <T>
@@ -72,6 +59,9 @@ public class Task1 {
                 .collect(Collectors.toList());
     }
     
+    
+    
+    //1. Display the total confirmed Covid-19 cases according to country
     public static int sumofCases(List<Country> cList,String countryName){
         return cList.stream().map(c -> c.getDataset())
                 .mapToInt(dataset -> dataset.stream().mapToInt(numbers -> numbers.getData()).sum())
@@ -82,124 +72,37 @@ public class Task1 {
     
     //2. Compute the sum of confirmed cases by week and month for each country
     //Weekly confirmed cases and monthly confirm case 
-    public static String[][] weeklyNMonthlyCasesForCountriesTabledata(List<Country> cList,DateTimeFormatter dateFormat){
-        try {
-            List<Country> countries = getUniqueCountries(cList);
-            List<String> weeks = getAllWeeksOrMonth(dateFormat);
-            String[][] data = new String[countries.size()][weeks.size()+2];
-            int i =0;
-            
-            for (Country c : countries) {
-                data[i][0]=String.valueOf(i+1)+".";
-                data[i][1]= c.getCountryName();
-                int w = 2;
-                
-                for (String week : weeks) {
-                    int weeklycases = getWeeklyOrMonthlyConfirmedCasesbyCountry(cList, c.getCountryName(), week,dateFormat);
-                    data[i][w]=String.valueOf(weeklycases);
-                    w+=1;
-                }
-                i+=1;
-            }
-            
-            return data;
-            
-        } catch (IOException | CsvException ex) {
-            Logger.getLogger(Task1.class.getName()).log(Level.SEVERE, null, ex);
-        }
-         return null;
-    }
-    
-    public static List<String> getAllWeeksOrMonth(DateTimeFormatter  dateFormat){
-        try {
-            return CovidData.provideC19GlobalConfirmedCaseData().stream()
+
+    public static List<String> getAllWeeksOrMonth(List<Country> cList, SimpleDateFormat dateFormat) {
+        
+        return cList.stream()
                     .map(c->c.getDataset())
                     .flatMap(d->d.stream())
-                    .sorted(Comparator.comparing(d->d.getDate()))
                     .map(week->dateFormat.format(week.getDate()))
-                    
                     .filter(distinctByKey(week->week))
                     .collect(Collectors.toList());
-        } catch (IOException | CsvException ex) { 
-            Logger.getLogger(Task1.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
     }
     
-    public static int getWeeklyOrMonthlyConfirmedCasesbyCountry(List<Country> cList,String countryName, String weekOrMonthYear, DateTimeFormatter dateFormat){ 
-        try {
-            return getRecordsWithSameCountryName(cList,countryName).stream()
-                    .map(c->c.getDataset())
-                    .flatMap(d->d.stream())                    
-                    .filter(d->dateFormat.format(d.getDate()).equals(weekOrMonthYear))
-                    .mapToInt(date->date.getData())
-                    .sum();
-        } catch (IOException | CsvException ex) {
-            Logger.getLogger(Task1.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return 0;
-    }
-    
-     //For header of the table     
-    public static String[] getAllWeeksStartNEndDateHeader() {
-        DateTimeFormatter formatter =DateTimeFormatter.ofPattern("dd MMM yyyy");
-        DateTimeFormatter weekNYearDateFormat = DateTimeFormatter.ofPattern("ww,Y",Locale.UK);
-        String[] header = new String[getAllWeeksOrMonth(weekNYearDateFormat).size()+2];
-        header[0]="No";
-        header[1]= "Country";
-        int i=2;
-        
-        for (String allWeek : getAllWeeksOrMonth(weekNYearDateFormat)) {
-            LocalDate startDate = LocalDate.now()
-                    .with(WeekFields.ISO.weekBasedYear(), Integer.valueOf(allWeek.split(",")[1])) // year
-                    .with(WeekFields.ISO.weekOfWeekBasedYear(), Integer.valueOf(allWeek.split(",")[0])) // week of year
-                    .with(WeekFields.ISO.dayOfWeek(), DayOfWeek.MONDAY.getValue()); // day of week
-            LocalDate endDate = startDate.plusDays(6);
-            String temp = formatter.format(startDate)+" - "+formatter.format(endDate);
-            header[i] = temp;
-            i+=1;
-        }
-        
-        return header;
-    }
-    
-     public static String[] getAllMonthHeader() {
-        DateTimeFormatter monthNYearDateFormat = DateTimeFormatter.ofPattern("MMMM,Y",Locale.UK);
-        String[] header = new String[getAllWeeksOrMonth(monthNYearDateFormat).size()+2];
-        header[0]="No";
-        header[1]= "Country";
-        int i=2;
-        
-        for (String allWeek : getAllWeeksOrMonth(monthNYearDateFormat)) {
-            header[i] = allWeek;
-            i+=1;
-        }
-        
-        return header;
-        
-     }
-    
-    
-    
-    
-    public static void main(String[] args) {
-        try {
-            SimpleDateFormat monthNYear = new SimpleDateFormat("MM Y");
-            DateTimeFormatter weekNYearDateFormat = DateTimeFormatter.ofPattern("ww,Y",Locale.UK);
-            DateTimeFormatter monthNYearDateFormat = DateTimeFormatter.ofPattern("MMMM,Y",Locale.UK);
-            DateTimeFormatter format =DateTimeFormatter.ofPattern("M/d/yy",Locale.UK);
-            LocalDate date = LocalDate.parse("12/28/20",format);
-            List<Country> clist = CovidData.provideC19GlobalConfirmedCaseData();
-            System.out.println(Arrays.toString(getAllMonthHeader()));
-            WeekFields weekFields = WeekFields.of(Locale.ENGLISH);
-            
-            System.out.println(weekNYearDateFormat.format(date));
-            System.out.println(getAllWeeksOrMonth(monthNYearDateFormat)); 
-            System.out.println(getWeeklyOrMonthlyConfirmedCasesbyCountry(clist,"Afghanistan","February,2020",monthNYearDateFormat)); 
-        } catch (IOException | CsvException  ex) {
-            Logger.getLogger(Task1.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public static Integer getWeeklyOrMonthlyConfirmedCasesforCountry(List<Country> cList, String dateToCompareTo, SimpleDateFormat dateFormat) {
+        return cList.stream().map(c -> c.getDataset())
+                .mapToInt(data -> data.stream().filter(date
+                -> dateFormat.format(date.getDate()).equals(dateToCompareTo)).mapToInt(numbers -> numbers.getData()).sum())
+                .sum();
     }
 
-    
+    public static String weeklyStartDate(List<Country> cList, String weekNYear, SimpleDateFormat dateFormat, SimpleDateFormat displayWeekFormat) {
+        Country resultList = cList.get(0);
+        return resultList.getDataset().stream()
+                .filter(p -> dateFormat.format(p.getDate()).equals(weekNYear))
+                .sorted(Comparator.comparing(p -> p.getDate()))
+                .map(p -> displayWeekFormat.format(p.getDate())).findFirst().orElse(null);
+    }
+
+    public static String weeklyEndDate(List<Country> cList, String weekNYear, SimpleDateFormat dateFormat, SimpleDateFormat displayWeekFormat) {
+        
+        return  cList.get(0).getDataset().stream()
+                .filter(p -> dateFormat.format(p.getDate()).equals(weekNYear))
+                .sorted(Comparator.comparing(p -> p.getDate()))
+                .map(p -> displayWeekFormat.format(p.getDate())).reduce((a, b) -> b).orElse(null);
+    }
 }
