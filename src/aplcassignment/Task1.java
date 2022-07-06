@@ -25,6 +25,7 @@ import java.util.Comparator;
  */
 public class Task1 {
     private static final BiPredicate<String, String> sameCountryName = (inputName, ComparedName) -> inputName.equalsIgnoreCase(ComparedName);
+    private static final BiPredicate<String, String> searchCountryName = (searchInput, ComparedName) -> searchInput.toLowerCase().contains(ComparedName.toLowerCase());
     
     
     
@@ -55,9 +56,9 @@ public class Task1 {
     
     
     //1. Display the total confirmed Covid-19 cases according to country
-    public static int sumofCases(List<Country> cList,String countryName){
+    public static int sumofCases(List<Country> cList){
         return cList.stream().map(c -> c.getDataset())
-                .mapToInt(dataset -> dataset.stream().mapToInt(numbers -> numbers.getData()).sum())
+                .mapToInt(dataset -> dataset.stream().mapToInt(numbers -> numbers.getData()).reduce(0, (x, y) -> x + y))
                 .sum();
 
     }
@@ -157,5 +158,16 @@ public class Task1 {
     public static final BiFunction<int[], Integer, Integer> getMax = (intArray,count)->count==1
              ?intArray[0]
              :getlarger.apply(intArray[count-1]).apply(Task1.getMax.apply(intArray,count-1));
+   
     
+    
+    //Q4 Search/locate the country for Covid-19 cases covering confirmed, death and recovered cases. 
+
+    
+    public static List<Country> searchCountry(List<Country> cList, String countryName) {
+        return cList.stream()
+                .filter(distinctByKey(p -> p.getCountryName()))
+                .filter(p -> searchCountryName.test(p.getCountryName(), countryName))
+                .collect(Collectors.toList());
+    }
 }

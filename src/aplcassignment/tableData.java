@@ -27,7 +27,7 @@ public class tableData {
         String[] temp;
         List ans = new ArrayList();
         for (Country c : getUniqueCountries(cList)) {
-            String sum = String.valueOf(sumofCases(getRecordsWithSameCountryName(cList,c.getCountryName()),c.getCountryName()));
+            String sum = String.valueOf(sumofCases(getRecordsWithSameCountryName(cList,c.getCountryName())));
             temp=new String[2];
             temp[0]=c.getCountryName();
             temp[1]=sum;
@@ -128,5 +128,42 @@ public class tableData {
          }
          return null;
      }
-    
+     
+    public static String[] saerchTableHeader (){
+          String[] header = {"Statistics","Cases"};
+          return header;     
+    }
+     
+    public static String[][] saerchTableData (List<Country> confirmCases, List<Country> deathList, List<Country> recoveredList, String countryName){
+         try {
+             String[][] table1Data = new String[9][2];
+             
+             table1Data[0][0] = "Total Confirmed Cases";
+             table1Data[1][0] = "Total Death Cases";
+             table1Data[2][0] = "Total Recovered Cases";
+             table1Data[3][0] = "Lowest Confirmed Cases/day";
+             table1Data[4][0] = "Highest Confirmed Cases/day";
+             table1Data[5][0] = "Lowest Death Cases/day";
+             table1Data[6][0] = "Highest Death Cases/day";
+             table1Data[7][0] = "Lowest Recovered Cases/day";
+             table1Data[8][0] = "Highest Recovered Cases/day";
+             
+             table1Data[0][1] = String.valueOf(Task1.sumofCases(getRecordsWithSameCountryName(confirmCases,countryName)));
+             table1Data[1][1] = String.valueOf(Task1.sumofCases(getRecordsWithSameCountryName(deathList,countryName)));
+             table1Data[2][1] = String.valueOf(Task1.sumofCases(getRecordsWithSameCountryName(recoveredList,countryName)));
+             table1Data[3][1] = String.valueOf(Task1.getCountryLowestData(confirmCases, countryName));
+             table1Data[4][1] = String.valueOf(Task1.getCountryHighestData(confirmCases, countryName,Task1.getMax));
+             table1Data[5][1] = String.valueOf(Task1.getCountryLowestData(deathList, countryName));
+             table1Data[6][1] = String.valueOf(Task1.getCountryHighestData(deathList, countryName,Task1.getMax));
+             table1Data[7][1] = String.valueOf(Task1.getCountryLowestData(recoveredList, countryName));
+             table1Data[8][1] = String.valueOf(Task1.getCountryHighestData(recoveredList, countryName,Task1.getMax));
+             
+             
+             return table1Data;
+         } catch (IOException | CsvException ex) {
+             Logger.getLogger(tableData.class.getName()).log(Level.SEVERE, null, ex);
+         }
+          
+         return null;
+    }
 }
