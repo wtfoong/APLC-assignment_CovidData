@@ -54,7 +54,7 @@ public class CovidData {
                     try {
                         int rowData = Integer.valueOf(filtered.get(i));
                         CountryData cd = new CountryData(format.parse(headers.get(i)), rowData);
-                        if (i > 0) {
+                        if (rowData > 0&&i>0) {
                             int previousRowData = Integer.valueOf(filtered.get(i-1));
                             int newRowData = rowData - previousRowData;
                             if (previousRowData > 0) {

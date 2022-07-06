@@ -2,8 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package aplcassignment;
+package UI;
 
+import aplcassignment.Country;
+import aplcassignment.CovidData;
+import aplcassignment.Task1;
+import aplcassignment.tableData;
 import com.opencsv.exceptions.CsvException;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -113,6 +117,16 @@ public class MainMenu extends javax.swing.JFrame {
         getContentPane().add(cmbTask1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 43, 461, 46));
 
         btnSearch.setText("Search");
+        btnSearch.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnSearchMouseClicked(evt);
+            }
+        });
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(1169, 43, -1, 36));
 
         jlSearch.setModel(new javax.swing.AbstractListModel<String>() {
@@ -217,6 +231,15 @@ public class MainMenu extends javax.swing.JFrame {
     private void txtSearchFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtSearchFocusLost
         spSearchResult.setVisible(false);
     }//GEN-LAST:event_txtSearchFocusLost
+
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+       
+        showSearchResult(txtSearch.getText());
+    }//GEN-LAST:event_btnSearchActionPerformed
+
+    private void btnSearchMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSearchMouseClicked
+       
+    }//GEN-LAST:event_btnSearchMouseClicked
     
     private void setCountrySumCaseTable(List<Country> confirmCaseList){         
         tblstatistic.setModel(new javax.swing.table.DefaultTableModel(
@@ -372,16 +395,22 @@ public class MainMenu extends javax.swing.JFrame {
         if(countryName==null){
             return;
         }
-        String[] columnData = tableData.saerchTableHeader();
-        String[][] rowData = tableData.saerchTableData(confirmCaseList, deathList, recoveredList, countryName);
-        DefaultTableModel model = new DefaultTableModel(rowData, columnData) {
-                    @Override
-                    public boolean isCellEditable(int row, int column) {
-                        return false;
-                    }
-                };
-        tblstatistic.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
-        tblstatistic.setModel(model);
+        try {
+            String[] columnData = tableData.saerchTableHeader();
+            //recoveredList.stream().map(p->p.getCountryName()).forEach(System.out::println);
+            String[][] rowData = tableData.saerchTableData(confirmCaseList, deathList, recoveredList, countryName);
+            DefaultTableModel model = new DefaultTableModel(rowData, columnData) {
+                        @Override
+                        public boolean isCellEditable(int row, int column) {
+                            return false;
+                        }
+                    };
+            tblstatistic.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+            tblstatistic.setModel(model);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Country not found", "Error Message", JOptionPane.ERROR_MESSAGE);
+        }
+        
         
         
     }

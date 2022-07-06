@@ -60,7 +60,6 @@ public class Task1 {
         return cList.stream().map(c -> c.getDataset())
                 .mapToInt(dataset -> dataset.stream().mapToInt(numbers -> numbers.getData()).reduce(0, (x, y) -> x + y))
                 .sum();
-
     }
     
     
@@ -162,8 +161,6 @@ public class Task1 {
     
     
     //Q4 Search/locate the country for Covid-19 cases covering confirmed, death and recovered cases. 
-
-    
     public static List<Country> searchCountry(List<Country> cList, String countryName) {
         return cList.stream()
                 .filter(distinctByKey(p -> p.getCountryName()))
