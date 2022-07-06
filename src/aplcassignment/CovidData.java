@@ -1,5 +1,7 @@
 package aplcassignment;
 
+import aplcassignment.dataClass.CountryData;
+import aplcassignment.dataClass.Country;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 

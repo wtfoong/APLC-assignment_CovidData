@@ -1,6 +1,7 @@
 
 package aplcassignment;
 
+import aplcassignment.dataClass.Country;
 import static aplcassignment.Task1.getAllWeeksOrMonth;
 import static aplcassignment.Task1.getRecordsWithSameCountryName;
 import static aplcassignment.Task1.getUniqueCountries;
@@ -9,11 +10,9 @@ import com.opencsv.exceptions.CsvException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static aplcassignment.Task1.getWeeklyOrMonthlyConfirmedCasesforCountry;
 import static aplcassignment.Task1.weeklyEndDate;
 import static aplcassignment.Task1.weeklyStartDate;
 

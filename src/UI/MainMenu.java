@@ -4,7 +4,7 @@
  */
 package UI;
 
-import aplcassignment.Country;
+import aplcassignment.dataClass.Country;
 import aplcassignment.CovidData;
 import aplcassignment.Task1;
 import aplcassignment.tableData;
