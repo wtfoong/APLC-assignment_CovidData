@@ -21,9 +21,11 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
+import static java.util.stream.Collectors.groupingBy;
 
 
 /**
@@ -105,4 +107,78 @@ public class Task1 {
                 .sorted(Comparator.comparing(p -> p.getDate()))
                 .map(p -> displayWeekFormat.format(p.getDate())).reduce((a, b) -> b).orElse(null);
     }
+    
+    //3. Find the highest/lowest death and recovered Covid-19 cases as per country 
+    
+    public static int getCountryLowestOrHighestData(List<Country> cList, String countryName, BiFunction<int[], Integer, Integer> func){
+        
+        try {
+            List<Country> countryDataList = getRecordsWithSameCountryName(cList,countryName);
+            
+          int[] dataArray = countryDataList.stream()
+                    .map(c->c.getDataset())
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.groupingBy(CountryData::getDate)).entrySet().stream()
+                    .mapToInt(dnumber->dnumber.getValue().stream().mapToInt(d->d.getData()).sum())
+                    .toArray();
+            
+            return func.apply(dataArray, dataArray.length);
+                    } catch (IOException | CsvException ex) {
+            Logger.getLogger(Task1.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 0;
+    }
+    
+    public static int getCountryLowestNHighestData(List<Country> cList, String countryName){
+        
+        try {
+            List<Country> countryDataList = getRecordsWithSameCountryName(cList,countryName);
+            
+          int[] dataArray = countryDataList.stream()
+                    .map(c->c.getDataset())
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.groupingBy(CountryData::getDate)).entrySet().stream()
+                    .mapToInt(dnumber->dnumber.getValue().stream().mapToInt(d->d.getData()).sum())
+                    .toArray();
+            
+            return getMin(dataArray,dataArray.length,getlarger);
+                    } catch (IOException | CsvException ex) {
+            Logger.getLogger(Task1.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 0;
+    }
+    //currying
+    private static final Function<Integer,Function<Integer,Integer>> getlower = a-> b ->((a > b) ? b : a);
+    private static final Function<Integer,Function<Integer,Integer>> getlarger = a->b->((a > b) ? a : b);
+ 
+    
+    //tail recursion with HOF(Function as argument)
+    public static int getMin(int[] intArray, int count, Function<Integer,Function<Integer,Integer>> func){
+        if (count==1) {
+            return intArray[0];
+        }
+        return func.apply(intArray[count-1]).apply(getMin(intArray,count-1, func));
+        
+    }
+    
+    //Recursive lambda
+    static final BiFunction<int[], Integer, Integer> getMax = (intArray,count)->count==1
+             ?intArray[0]
+             :getlarger.apply(intArray[count-1]).apply(Task1.getMax.apply(intArray,count-1));
+    
+    public static void main(String[] args) {
+        try {
+            List<Country> cList = CovidData.provideC19GlobalDeathData();
+            
+            
+            System.out.println(getCountryLowestOrHighestData(cList,"Algeria",getMax));
+            System.out.println(getCountryLowestNHighestData(cList,"Algeria"));
+        } catch (IOException ex) {
+            Logger.getLogger(Task1.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (CsvException ex) {
+            Logger.getLogger(Task1.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    
 }
