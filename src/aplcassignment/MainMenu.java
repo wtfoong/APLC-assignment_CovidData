@@ -106,6 +106,8 @@ public class MainMenu extends javax.swing.JFrame {
     private void cmbTask1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbTask1ActionPerformed
         try {
             List<Country> confirmCaseList = CovidData.provideC19GlobalConfirmedCaseData();
+            List<Country> deathList = CovidData.provideC19GlobalDeathData();
+            List<Country> recoveredList = CovidData.provideC19GlobalRecoveredData();
             switch (cmbTask1.getSelectedIndex()) {
                 default -> cmbTask1.setSelectedIndex(0);
                 case 0 -> {
@@ -118,6 +120,10 @@ public class MainMenu extends javax.swing.JFrame {
                 case 2 -> {
                     
                     setCountryMonthlyCaseTable(confirmCaseList,monthNYearFormat);
+                }
+                case 3 -> {
+                    
+                    setCountryDeathRecoverHLTable(deathList,recoveredList);
                 }
                 
                 
@@ -217,6 +223,21 @@ public class MainMenu extends javax.swing.JFrame {
              tblstatistic.getColumnModel().getColumn(i).setPreferredWidth(100);
              tblstatistic.getColumnModel().getColumn(i).setCellRenderer(centerrenderer);
         }
+       
+    }
+    
+    private void setCountryDeathRecoverHLTable(List<Country> deathList, List<Country> recoveredList){         
+        String[] table1Columns = tableData.deathNRecoverHeader();
+        String[][] table1Data = tableData.deathNRecoverTableData(deathList, recoveredList);
+        DefaultTableModel model = new DefaultTableModel(table1Data, table1Columns) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+        tblstatistic.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+        tblstatistic.setModel(model);
+        
        
     }
     /**

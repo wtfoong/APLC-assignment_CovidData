@@ -100,5 +100,33 @@ public class tableData {
         return header;
         
      }
+     
+     public static String[] deathNRecoverHeader(){
+          String[] header = {"No","Country", "Lowest Death", "Highest Death", "Lowest Recovered", "Highest Recovered"};
+          return header;
+     }
+     
+     public static String[][] deathNRecoverTableData(List<Country> deathList, List<Country> recoveredList){
+         try {
+             List<Country> countries = getUniqueCountries(deathList);
+             String[][] tableData = new String[countries.size()][6];
+             int i =0;
+             
+             for (Country country : countries) {
+                 tableData[i][0]=String.valueOf(i+1)+".";
+                 tableData[i][1] = country.getCountryName();
+                 tableData[i][2] = String.valueOf( Task1.getCountryLowestData(deathList, country.getCountryName()));
+                 tableData[i][3] = String.valueOf( Task1.getCountryHighestData(deathList, country.getCountryName(),Task1.getMax));
+                 tableData[i][4] = String.valueOf( Task1.getCountryLowestData(recoveredList, country.getCountryName()));
+                 tableData[i][5] = String.valueOf( Task1.getCountryHighestData(recoveredList, country.getCountryName(),Task1.getMax));
+                 
+                 i+=1;
+             }
+             return tableData;
+         } catch (IOException | CsvException ex) {
+             Logger.getLogger(tableData.class.getName()).log(Level.SEVERE, null, ex);
+         }
+         return null;
+     }
     
 }

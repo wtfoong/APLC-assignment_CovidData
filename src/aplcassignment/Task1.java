@@ -6,9 +6,7 @@ package aplcassignment;
 
 import com.opencsv.exceptions.CsvException;
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -17,15 +15,8 @@ import java.util.function.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.WeekFields;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.Locale;
-import static java.util.stream.Collectors.groupingBy;
 
 
 /**
@@ -92,10 +83,10 @@ public class Task1 {
                 .sum();
     }
 
-    public static String weeklyStartDate(List<Country> cList, String weekNYear, SimpleDateFormat dateFormat, SimpleDateFormat displayWeekFormat) {
+    public static String weeklyStartDate(List<Country> cList, String weekNYear, SimpleDateFormat weekNumber, SimpleDateFormat displayWeekFormat) {
         Country resultList = cList.get(0);
         return resultList.getDataset().stream()
-                .filter(p -> dateFormat.format(p.getDate()).equals(weekNYear))
+                .filter(p -> weekNumber.format(p.getDate()).equals(weekNYear))
                 .sorted(Comparator.comparing(p -> p.getDate()))
                 .map(p -> displayWeekFormat.format(p.getDate())).findFirst().orElse(null);
     }
@@ -109,8 +100,8 @@ public class Task1 {
     }
     
     //3. Find the highest/lowest death and recovered Covid-19 cases as per country 
-    
-    public static int getCountryLowestOrHighestData(List<Country> cList, String countryName, BiFunction<int[], Integer, Integer> func){
+    //using HOF and recursive lambda
+    public static int getCountryHighestData(List<Country> cList, String countryName, BiFunction<int[], Integer, Integer> func){
         
         try {
             List<Country> countryDataList = getRecordsWithSameCountryName(cList,countryName);
@@ -128,27 +119,28 @@ public class Task1 {
         }
         return 0;
     }
-    
-    public static int getCountryLowestNHighestData(List<Country> cList, String countryName){
+    //using getMin tail recursion
+    public static int getCountryLowestData(List<Country> cList, String countryName){
         
         try {
             List<Country> countryDataList = getRecordsWithSameCountryName(cList,countryName);
             
-          int[] dataArray = countryDataList.stream()
+            int[] dataArray = countryDataList.stream()
                     .map(c->c.getDataset())
                     .flatMap(Collection::stream)
                     .collect(Collectors.groupingBy(CountryData::getDate)).entrySet().stream()
                     .mapToInt(dnumber->dnumber.getValue().stream().mapToInt(d->d.getData()).sum())
+                    .filter(d->d>=0)
                     .toArray();
             
-            return getMin(dataArray,dataArray.length,getlarger);
+            return getMin(dataArray,dataArray.length,getlower);
                     } catch (IOException | CsvException ex) {
             Logger.getLogger(Task1.class.getName()).log(Level.SEVERE, null, ex);
         }
         return 0;
     }
     //currying
-    private static final Function<Integer,Function<Integer,Integer>> getlower = a-> b ->((a > b) ? b : a);
+    private static final Function<Integer,Function<Integer,Integer>> getlower = a->b ->((a < b) ? a : b);
     private static final Function<Integer,Function<Integer,Integer>> getlarger = a->b->((a > b) ? a : b);
  
     
@@ -162,23 +154,8 @@ public class Task1 {
     }
     
     //Recursive lambda
-    static final BiFunction<int[], Integer, Integer> getMax = (intArray,count)->count==1
+    public static final BiFunction<int[], Integer, Integer> getMax = (intArray,count)->count==1
              ?intArray[0]
              :getlarger.apply(intArray[count-1]).apply(Task1.getMax.apply(intArray,count-1));
-    
-    public static void main(String[] args) {
-        try {
-            List<Country> cList = CovidData.provideC19GlobalDeathData();
-            
-            
-            System.out.println(getCountryLowestOrHighestData(cList,"Algeria",getMax));
-            System.out.println(getCountryLowestNHighestData(cList,"Algeria"));
-        } catch (IOException ex) {
-            Logger.getLogger(Task1.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (CsvException ex) {
-            Logger.getLogger(Task1.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
     
 }
