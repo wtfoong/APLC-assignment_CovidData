@@ -7,7 +7,7 @@ package UI;
 import aplcassignment.dataClass.Country;
 import aplcassignment.CovidData;
 import aplcassignment.Task1;
-import aplcassignment.tableData;
+import controller.tableData;
 import com.opencsv.exceptions.CsvException;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -80,6 +80,7 @@ public class MainMenu extends javax.swing.JFrame {
         txtSearch = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         tblstatistic.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -169,6 +170,7 @@ public class MainMenu extends javax.swing.JFrame {
         getContentPane().add(txtSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(906, 43, 257, 36));
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void cmbTask1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbTask1ActionPerformed
@@ -197,7 +199,9 @@ public class MainMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_cmbTask1ActionPerformed
 
     private void btnPrologActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrologActionPerformed
-        // TODO add your handling code here:
+        this.dispose();
+        prologFrame pf = new prologFrame();
+        pf.setVisible(true);
     }//GEN-LAST:event_btnPrologActionPerformed
 
     private void txtSearchKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyTyped

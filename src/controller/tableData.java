@@ -1,6 +1,7 @@
 
-package aplcassignment;
+package controller;
 
+import aplcassignment.Task1;
 import aplcassignment.dataClass.Country;
 import static aplcassignment.Task1.getAllWeeksOrMonth;
 import static aplcassignment.Task1.getRecordsWithSameCountryName;

@@ -1,0 +1,3 @@
+%rules
+ascending(Sorted) :- setof(CountryName-Cases,confirmed_cases(CountryName,Cases),Pairs), sort(2,@<,Pairs,Sorted).
+decending(Sorted) :- setof(CountryName-Cases,confirmed_cases(CountryName,Cases),Pairs), sort(2,@>,Pairs,Sorted).

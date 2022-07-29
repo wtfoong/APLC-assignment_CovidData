@@ -25,29 +25,31 @@ import java.util.Comparator;
  * @author rainy
  */
 public class Task1 {
-    private static final BiPredicate<String, String> sameCountryName = (inputName, ComparedName) -> inputName.equalsIgnoreCase(ComparedName);
+    
     private static final BiPredicate<String, String> searchCountryName = (searchInput, ComparedName) -> searchInput.toLowerCase().contains(ComparedName.toLowerCase());
+    private static final BiPredicate<String, String> sameCountryName = (inputName, ComparedName) -> inputName.equalsIgnoreCase(ComparedName);
     
-    
-    
-   
+
     /**
      * Source: https://stackoverflow.com/a/27872852
      * @param <T>
      * @param keyExtractor
      * @return 
      */
-    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+    //Listing: 1.1
+    public static final <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
         Set<Object> seen = ConcurrentHashMap.newKeySet();
         return t -> seen.add(keyExtractor.apply(t));
     }
     
+    //Listing: 1.2
     public static List<Country> getUniqueCountries(List<Country> cList) throws IOException, CsvException{
         return cList.stream()
                 .filter(distinctByKey(Country::getCountryName))
                 .collect(Collectors.toList());
     }
     
+    //Listing: 1.3
     public static List<Country> getRecordsWithSameCountryName(List<Country> cList, String countryName) throws IOException, CsvException{
         
         return cList.stream().filter(t->sameCountryName.test(t.getCountryName(), countryName))
@@ -57,6 +59,8 @@ public class Task1 {
     
     
     //1. Display the total confirmed Covid-19 cases according to country
+    
+    //Listing: 1.4
     public static int sumofCases(List<Country> cList){
         return cList.stream().map(c -> c.getDataset())
                 .mapToInt(dataset -> dataset.stream().mapToInt(numbers -> numbers.getData()).reduce(0, (x, y) -> x + y))
@@ -67,6 +71,7 @@ public class Task1 {
     //2. Compute the sum of confirmed cases by week and month for each country
     //Weekly confirmed cases and monthly confirm case 
 
+    //Listing: 1.5
     public static List<String> getAllWeeksOrMonth(List<Country> cList, SimpleDateFormat dateFormat) {
         
         return cList.stream()
@@ -77,13 +82,15 @@ public class Task1 {
                     .collect(Collectors.toList());
     }
     
+    //Listing: 1.6
     public static Integer getWeeklyOrMonthlyConfirmedCasesforCountry(List<Country> cList, String dateToCompareTo, SimpleDateFormat dateFormat) {
         return cList.stream().map(c -> c.getDataset())
                 .mapToInt(data -> data.stream().filter(date
                 -> dateFormat.format(date.getDate()).equals(dateToCompareTo)).mapToInt(numbers -> numbers.getData()).sum())
                 .sum();
     }
-
+    
+    //Listing: 1.7
     public static String weeklyStartDate(List<Country> cList, String weekNYear, SimpleDateFormat weekNumber, SimpleDateFormat displayWeekFormat) {
         Country resultList = cList.get(0);
         return resultList.getDataset().stream()
@@ -92,6 +99,7 @@ public class Task1 {
                 .map(p -> displayWeekFormat.format(p.getDate())).findFirst().orElse(null);
     }
 
+    //Listing: 1.8
     public static String weeklyEndDate(List<Country> cList, String weekNYear, SimpleDateFormat dateFormat, SimpleDateFormat displayWeekFormat) {
         
         return  cList.get(0).getDataset().stream()
@@ -101,6 +109,8 @@ public class Task1 {
     }
     
     //3. Find the highest/lowest death and recovered Covid-19 cases as per country 
+    
+    //Listing: 1.9
     //using HOF and recursive lambda
     public static int getCountryHighestData(List<Country> cList, String countryName, BiFunction<int[], Integer, Integer> func){
         
@@ -120,6 +130,8 @@ public class Task1 {
         }
         return 0;
     }
+    
+    //Listing: 1.10
     //using getMin tail recursion
     public static int getCountryLowestData(List<Country> cList, String countryName){
         
@@ -140,11 +152,13 @@ public class Task1 {
         }
         return 0;
     }
+    
+    //Listing: 1.11
     //currying
     private static final Function<Integer,Function<Integer,Integer>> getlower = a->b ->((a < b) ? a : b);
     private static final Function<Integer,Function<Integer,Integer>> getlarger = a->b->((a > b) ? a : b);
  
-    
+    //Listing: 1.12
     //tail recursion with HOF(Function as argument)
     public static int getMin(int[] intArray, int count, Function<Integer,Function<Integer,Integer>> func){
         if (count==1) {
@@ -154,6 +168,7 @@ public class Task1 {
         
     }
     
+    //Listing: 1.13
     //Recursive lambda
     public static final BiFunction<int[], Integer, Integer> getMax = (intArray,count)->count==1
              ?intArray[0]
@@ -162,6 +177,8 @@ public class Task1 {
     
     
     //Q4 Search/locate the country for Covid-19 cases covering confirmed, death and recovered cases. 
+    
+    //Listing: 1.14
     public static List<Country> searchCountry(List<Country> cList, String countryName) {
         return cList.stream()
                 .filter(distinctByKey(p -> p.getCountryName()))

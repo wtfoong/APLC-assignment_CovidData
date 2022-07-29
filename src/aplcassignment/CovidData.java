@@ -62,7 +62,7 @@ public class CovidData {
                             if (previousRowData > 0) {
                                 // The data reduce in the next day (Due to wrong dataset)
                                 if (newRowData < 0) {
-                                    // Remain the wrong data to avoid wrong counting in sum.
+                                    // Remain the wrong data to get corrct sum 
                                     cd.setNumber(newRowData);
                                 } else {
                                     cd.setNumber(newRowData);
