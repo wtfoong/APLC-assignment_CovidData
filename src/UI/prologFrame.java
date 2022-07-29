@@ -4,17 +4,24 @@
  */
 package UI;
 
+import aplcassignment.Task2;
+import java.util.List;
+
 /**
  *
  * @author rainy
  */
 public class prologFrame extends javax.swing.JFrame {
-
+    
+    private final  List<String> ascendingDataList = Task2.ascendingConfirmedCases();
+    private final  List<String> descendingDataList = Task2.descendingConfirmedCases();
+    
     /**
      * Creates new form prologFrame
      */
     public prologFrame() {
         initComponents();
+        cmbTask2ActionPerformed(null);
     }
 
     /**
@@ -33,7 +40,12 @@ public class prologFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        cmbTask2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cmbTask2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "2.1 Ascending confirmed cases", "2.2 Descending confirmed cases" }));
+        cmbTask2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbTask2ActionPerformed(evt);
+            }
+        });
 
         btnBack.setText("Back");
         btnBack.addActionListener(new java.awt.event.ActionListener() {
@@ -57,10 +69,10 @@ public class prologFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 782, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap(24, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(cmbTask2, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 354, Short.MAX_VALUE)
+                        .addComponent(cmbTask2, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(106, 106, 106))))
         );
@@ -86,6 +98,26 @@ public class prologFrame extends javax.swing.JFrame {
         mMenu.setVisible(true);
     }//GEN-LAST:event_btnBackActionPerformed
 
+    private void cmbTask2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbTask2ActionPerformed
+         switch (cmbTask2.getSelectedIndex()) {
+            default -> cmbTask2.setSelectedIndex(0);
+            case 0 -> {
+                printData(ascendingDataList);
+            }
+            case 1 -> {
+                
+                printData(descendingDataList);
+            }
+        }
+    }//GEN-LAST:event_cmbTask2ActionPerformed
+
+    
+    private void printData(List<String> data){
+       String output = data.stream().reduce((currentMessage,message)->currentMessage += "\n" + message).get();
+       txtArPrologResult.setText("");
+       txtArPrologResult.setText(output);
+       txtArPrologResult.setCaretPosition(0);
+    }
     /**
      * @param args the command line arguments
      */

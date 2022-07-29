@@ -6,15 +6,15 @@ package aplcassignment;
 
 import aplcassignment.dataClass.Country;
 import controller.tableData;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Map;
 import org.jpl7.Query;
+import org.jpl7.Term;
 
 /**
  *
@@ -22,8 +22,9 @@ import org.jpl7.Query;
  */
 public class Task2 {
     
-    private static final String PL_FILE = "APLCAssignmentTask2KnowledgebaseFile.pl";
+    private static final String PL_FILE = "prologData/APLCAssignmentTask2KnowledgebaseFile.pl";
     
+    //Listing: 2.1
     // generate knowledgebase file with facts and rules
     public static void createplFile() throws Exception {
         List<Country> cList = CovidData.provideC19GlobalConfirmedCaseData();
@@ -34,18 +35,19 @@ public class Task2 {
             PrintWriter plFile = new PrintWriter(PL_FILE)) {
             plFile.println("% Facts");
             
-            allConfirmedCasesList.stream().forEach(temp->plFile.println("confirmed_cases(" + temp[0] + ", " + temp[1] + ")."));
+            allConfirmedCasesList.stream().forEach(temp->plFile.println("confirmed_cases(" + temp[0].toLowerCase().replace(" ", "_").replaceAll("[^A-Za-z0-9_]", "") + ", " + temp[1] + ")."));
             
             rulesList.stream().forEach(plFile::println);
         }
     }
     
+    //Listing: 2.2
     private static  List<String> getPrologRules() throws Exception{
-        List<String> content = Files.readAllLines(Paths.get("prologRules.txt"));
+        List<String> content = Files.readAllLines(Paths.get("prologData/prologRules.txt"));
         return content;
     }
     
-    
+    //Listing: 2.3
     // connect to pl file
     private static boolean connectToPLFile(String plFile) {
         String s = "consult('" + plFile + "')";
@@ -53,16 +55,35 @@ public class Task2 {
        
         return q1.hasSolution();
     }
-    
-    
-    
-    public static void main(String[] args) {
-        try {
-            createplFile();
-            
-        } catch (Exception ex) {
-            Logger.getLogger(Task2.class.getName()).log(Level.SEVERE, null, ex);
+
+    //Listing: 2.4
+    // ascending query for confirmed cases
+    public static List<String> ascendingConfirmedCases(){
+        List<String> output = new ArrayList<>();
+        if(connectToPLFile(PL_FILE)){
+            output.add("--------------- [ Confirmed Covid-19 Cases in Ascending Order ] ---------------");
+            String q = "ascending(Result)";
+            Query query = new Query(q);
+            Map<String,Term>results = query.oneSolution();
+            Arrays.asList(results.get("Result").listToTermArray()).stream().forEach(countrycase->output.add(countrycase.toString().replaceAll("\\[|\\]|\"","").replaceAll("[_,]", " ")));
+            output.add("--------------- [ End ] ---------------");
         }
+        return output;
+    }
+    
+    //Listing: 2.5
+    //descending query for confirmed cases
+    public static List<String> descendingConfirmedCases(){
+        List<String> output = new ArrayList<>();
+        if(connectToPLFile(PL_FILE)){
+            output.add("--------------- [ Confirmed Covid-19 Cases in Descending Order ] ---------------");
+            String q = "descending(Result)";
+            Query query = new Query(q);
+            Map<String,Term>results = query.oneSolution();
+            Arrays.asList(results.get("Result").listToTermArray()).stream().forEach(countrycase->output.add(countrycase.toString().replaceAll("\\[|\\]|\"","").replaceAll("[_,]", " ")));
+            output.add("--------------- [ End ] ---------------");
+        }
+        return output;
     }
             
 }

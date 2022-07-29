@@ -7,6 +7,8 @@ package UI;
 import aplcassignment.dataClass.Country;
 import aplcassignment.CovidData;
 import aplcassignment.Task1;
+import aplcassignment.Task2;
+import static aplcassignment.Task2.createplFile;
 import controller.tableData;
 import com.opencsv.exceptions.CsvException;
 import java.awt.event.KeyEvent;
@@ -43,6 +45,11 @@ public class MainMenu extends javax.swing.JFrame {
         initComponents();
         cmbTask1ActionPerformed(null);
         spSearchResult.setVisible(false);
+        try {
+            Task2.createplFile();
+        } catch (Exception ex) {
+            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+        }
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void changedUpdate(DocumentEvent e) {
