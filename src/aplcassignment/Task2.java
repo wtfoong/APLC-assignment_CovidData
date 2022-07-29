@@ -35,7 +35,8 @@ public class Task2 {
             PrintWriter plFile = new PrintWriter(PL_FILE)) {
             plFile.println("% Facts");
             
-            allConfirmedCasesList.stream().forEach(temp->plFile.println("confirmed_cases(" + temp[0].toLowerCase().replace(" ", "_").replaceAll("[^A-Za-z0-9_]", "") + ", " + temp[1] + ")."));
+            allConfirmedCasesList.stream().forEach(temp->plFile.println("confirmed_cases(" + temp[0].toLowerCase()
+                    .replace(" ", "_").replaceAll("[^A-Za-z0-9_]", "") + ", " + temp[1] + ")."));
             
             rulesList.stream().forEach(plFile::println);
         }
@@ -47,6 +48,7 @@ public class Task2 {
         return content;
     }
     
+    //Queries
     //Listing: 2.3
     // connect to pl file
     private static boolean connectToPLFile(String plFile) {
@@ -65,7 +67,8 @@ public class Task2 {
             String q = "ascending(Result)";
             Query query = new Query(q);
             Map<String,Term>results = query.oneSolution();
-            Arrays.asList(results.get("Result").listToTermArray()).stream().forEach(countrycase->output.add(countrycase.toString().replaceAll("\\[|\\]|\"","").replaceAll("[_,]", " ")));
+            Arrays.asList(results.get("Result").listToTermArray()).stream()
+                    .forEach(countrycase->output.add(countrycase.toString().replaceAll("\\[|\\]|\"","").replaceAll("[_,]", " ")));
             output.add("--------------- [ End ] ---------------");
         }
         return output;
@@ -80,7 +83,8 @@ public class Task2 {
             String q = "descending(Result)";
             Query query = new Query(q);
             Map<String,Term>results = query.oneSolution();
-            Arrays.asList(results.get("Result").listToTermArray()).stream().forEach(countrycase->output.add(countrycase.toString().replaceAll("\\[|\\]|\"","").replaceAll("[_,]", " ")));
+            Arrays.asList(results.get("Result").listToTermArray()).stream()
+                    .forEach(countrycase->output.add(countrycase.toString().replaceAll("\\[|\\]|\"","").replaceAll("[_,]", " ")));
             output.add("--------------- [ End ] ---------------");
         }
         return output;
